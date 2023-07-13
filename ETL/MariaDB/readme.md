@@ -66,6 +66,7 @@ after the data was cleaned I decided that It would be more performant to hold th
 2. Changes will be rare so the overall performance hit for writing will be negligable
 3. They will be read all at once, there is no endpoint for a specific id
 4. Features is neatly reperesented as key value and Photos as an object or array of objects
+5. The frontend expects all the data in the same routes this will simplify backend querys and transformations
 
 I used querys like this to move data from a table into products:
 ```UPDATE Products
