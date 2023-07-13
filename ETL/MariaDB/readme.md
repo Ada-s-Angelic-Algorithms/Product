@@ -33,3 +33,49 @@ I also ran into an issue in the data where photos did not have valid we links I 
 
 UPDATE Photos
 SET url = REPLACE(url,'uhttp', 'http')
+
+Since I had disable foring key checking when importing I then had to verify foringe keys manualy by query:
+
+`SELECT COUNT(*) AS invalid_connections FROM Related WHERE relatedID NOT IN (   SELECT id FROM Products );`
+
+Related had 58 invalid connections so I checked what they were :
+```SELECT Related.*
+    -> FROM Related
+    -> LEFT JOIN Products ON Related.relatedID = Products.id
+    -> WHERE Products.id IS NULL;
+```
+
+
+backed up the database then used delet querys to remove the invalid rows
+
+```DELETE FROM Related
+    -> WHERE relatedID NOT IN (
+    -> SELECT id
+    -> FROM Products
+    -> );
+```
+
+Some products have 0 for price querys were used to check if they also did not have a default price
+if they did not they were deleted as no price existed
+if they did have a default price querys were used to alter orginal_price to match
+
+
+
+after the data was cleaned I decided that It would be more performant to hold the Features and Photos tables as JSON(LongText alias) columns in Products the ratinal for this is
+1. They will be written to all at once
+2. Changes will be rare so the overall performance hit for writing will be negligable
+3. They will be read all at once, there is no endpoint for a specific id
+4. Features is neatly reperesented as key value and Photos as an object or array of objects
+
+I used querys like this to move data from a table into products:
+```UPDATE Products
+SET features = (
+    SELECT JSON_OBJECTAGG(feature, value)
+    FROM Features
+    WHERE Features.productID = Products.id
+)
+WHERE id IN (
+    SELECT productID
+    FROM Features
+);```
+
