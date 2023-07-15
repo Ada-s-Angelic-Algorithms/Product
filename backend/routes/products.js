@@ -11,7 +11,7 @@ module.exports = (pool) => {
     let conn;
     try {
       conn = await pool.getConnection();
-      const query = `SELECT * FROM Products LIMIT ?, ?`;
+      const query = `SELECT id, name, slogan, description, category, default_price FROM Products LIMIT ?, ?`;
       const rows = await conn.query(query, [offset, count]);
       res.json(rows);
     } catch (err) {
@@ -31,7 +31,7 @@ module.exports = (pool) => {
   let conn;
   try {
     conn = await pool.getConnection();
-    const query = 'SELECT * FROM Products WHERE id = ?';
+    const query = 'SELECT id, name, slogan, description, category, default_price, features FROM Products WHERE id = ?';
     const rows = await conn.query(query, [productId]);
 
     if (rows.length === 0) {
