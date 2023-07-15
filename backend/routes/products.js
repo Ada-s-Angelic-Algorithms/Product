@@ -55,10 +55,8 @@ router.get('/:product_id/styles', async (req, res) => {
   let conn;
   try {
     conn = await pool.getConnection();
-    const query = 'SELECT * FROM Styles WHERE product_id = ?';
-    const rows = await conn.query(query, [productId]);
-
-    res.json(rows);
+    const rows = await conn.query('SELECT GetStylesWithSkusForProduct(?) AS result', [productId]);
+    res.json(JSON.parse(rows[0].result));
   } catch (err) {
     console.error('Error retrieving styles: ', err);
     res.status(500).json({ error: 'Internal Server Error' });
@@ -76,10 +74,10 @@ router.get('/:product_id/styles', async (req, res) => {
   let conn;
   try {
     conn = await pool.getConnection();
-    const query = 'SELECT * FROM Related WHERE product_id = ?';
+    const query = 'SELECT relatedID FROM Related WHERE productID = ?';
     const rows = await conn.query(query, [productId]);
 
-    res.json(rows);
+    res.json(rows.map(obj => obj.relatedID));
   } catch (err) {
     console.error('Error retrieving related products: ', err);
     res.status(500).json({ error: 'Internal Server Error' });
